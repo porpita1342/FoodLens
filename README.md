@@ -407,21 +407,41 @@ The application uses a **client-server architecture** for optimal performance:
 ## 📚 References
 
 ### Research Papers & Models
-- [FoodSAM Paper](https://arxiv.org/abs/2308.05938) - Any Food Segmentation
+
+- [FoodSAM Paper](https://arxiv.org/abs/2308.05938)
 - [FoodSAM Repository](https://github.com/jamesjg/FoodSAM)
 - [Ultralytics YOLOv11](https://docs.ultralytics.com/)
+- **Inverse Cooking (Meta)**
+  - [Blog](https://ai.meta.com/blog/inverse-cooking/)
+  - [Paper](https://github.com/facebookresearch/inversecooking)
+  - [Source Code](https://github.com/facebookresearch/inversecooking/tree/master)
+- [KitchenScale: Ingredient quantity estimation](https://github.com/dmis-lab/KitchenScale)
+  - [Associated paper](https://www.sciencedirect.com/science/article/abs/pii/S0957417423005432?via%3Dihub)
+- [Ingredient Weight Estimation Model (GitHub)](https://github.com/Annkkitaaa/Ingredient-Weight-Estimation-Model)
+- [Food Ingredients Recognition through Multi-label Classification (PapersWithCode)](https://paperswithcode.com/paper/food-ingredients-recognition-through-multi-1)
+- [Nature, Volumetric Food Recognition Paper](https://www.nature.com/articles/s41598-023-47885-0)
+
+### Example Apps & Use Cases
+
+- [Ultralytics Blog: AI in Nutrition](https://www.ultralytics.com/blog/ai-in-nutrition-streamlining-healthy-eating-with-computer-vision)
+- [Ultralytics open source code](https://github.com/ultralytics)
+- [Best Nutrition and Diet Tracking Apps (2025 list)](https://softwarehouse.au/blog/best-nutrition-and-diet-tracking-apps-to-optimise-health-in-2025/)
 
 ### Documentation
+
 - [Apple Depth Capture Guide](https://developer.apple.com/documentation/avfoundation/capturing-photos-with-depth)
 - [PyTorch Documentation](https://pytorch.org/docs/)
 - [Docker Documentation](https://docs.docker.com/)
 
 ### Datasets
+
 - [FoodSeg103 Benchmark](https://github.com/LARC-CMU-SMU/FoodSeg103-Benchmark-v1)
 - [Nutrition5K Dataset](https://github.com/google-research-datasets/Nutrition5k)
 - [Recipe1M+ Dataset](http://pic2recipe.csail.mit.edu/)
+- [FoodInsSeg](https://github.com/jamesjg/FoodInsSeg)
 
 ### Tools & Services
+
 - [Railway.app](https://railway.app/) - Deployment platform
 - [Vast AI](https://vast.ai/) - GPU rental service
 
