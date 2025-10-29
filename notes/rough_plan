@@ -1,0 +1,75 @@
+DIETARY TRACK APPLICATION SOFTWARE:
+
+I want to build an application that gives people dietary suggestions when given a set of personal statistics such as weight, race, gender,(sensitive data, best excluded) height…. 
+
+It will include a calorie tracker. When you give it an image of a dish, it will automatically work out the ingredients in the food. 
+
+Based on its ingredients, we can work out its nutritional values and determine whether it is suitable for the user or not.
+
+Platform: mobile - IOS
+(PC side not considered because its not convenient for the photo-taking feature)
+
+Aim: output? Loss function?
+
+Structure: 1. front end: UI - prototype: write on paper, Balsamiq. 
+Coding: Xcode: database, IOS development communicate(AI API)
+
+2. Back end: server - private/public
+Database: add, delete, query, edit (Feature)
+Algorithm: API, modeling (dynamic? Training data? classification, nutritional plan(generative model)?), API + modeling, Transformer, CNN + LSTM
+Interact: private photo: cable
+
+Test:
+Error
+Accuracy - rubric
+Optimisation
+
+Steps:
+
+Software installation
+UI design and development - user input
+Algorithm
+Integrate
+Test and optimise
+
+
+Useful sources: 
+An existing app:
+https://www.ultralytics.com/blog/ai-in-nutrition-streamlining-healthy-eating-with-computer-vision
+
+Its source code:
+https://github.com/ultralytics
+
+
+Program used to suggest the exact quantity of an ingredient when given its cooking context:
+https://github.com/dmis-lab/KitchenScale
+Its paper:
+https://www.sciencedirect.com/science/article/abs/pii/S0957417423005432?via%3Dihub
+
+Other apps that do the same thing:
+https://softwarehouse.au/blog/best-nutrition-and-diet-tracking-apps-to-optimise-health-in-2025/
+
+
+
+Inverse Cooking by Meta:(i think this is going to be very useful)
+https://ai.meta.com/blog/inverse-cooking/
+Its paper:https://github.com/facebookresearch/inversecooking
+Its source code: https://github.com/facebookresearch/inversecooking/tree/master
+
+
+Code of a weight estimation model:
+https://github.com/Annkkitaaa/Ingredient-Weight-Estimation-Model
+
+Relevant papers https://paperswithcode.com/paper/food-ingredients-recognition-through-multi-1
+
+https://www.nature.com/articles/s41598-023-47885-0
+
+
+Task:
+Look for data
+Programming environment: 1. Balsamiq (UI prototype) 2.Xcode 3.database: mysql, sqlite
+Code directory
+main.py
+data.py
+model.py
+Materials directory

@@ -1,0 +1,29 @@
+An existing app:
+https://www.ultralytics.com/blog/ai-in-nutrition-st	reamlining-healthy-eating-with-computer-vision
+
+Its source code:
+https://github.com/ultralytics
+
+
+Program used to suggest the exact quantity of an ingredient when given its cooking context:
+https://github.com/dmis-lab/KitchenScale
+Its paper:
+https://www.sciencedirect.com/science/article/abs/pii/S0957417423005432?via%3Dihub
+
+Other apps that do the same thing:
+https://softwarehouse.au/blog/best-nutrition-and-diet-tracking-apps-to-optimise-health-in-2025/
+
+
+Inverse Cooking by Meta:
+https://ai.meta.com/blog/inverse-cooking/
+Its paper:https://github.com/facebookresearch/inversecooking
+Its source code: https://github.com/facebookresearch/inversecooking/tree/master
+
+
+Code of a weight estimation model:
+https://github.com/Annkkitaaa/Ingredient-Weight-Estimation-Model
+
+Relevant papers https://paperswithcode.com/paper/food-ingredients-recognition-through-multi-1
+
+https://www.nature.com/articles/s41598-023-47885-0
+
