@@ -1,0 +1,5 @@
+numpy
+pandas 
+ijson
+opencv-python
+matplotlib

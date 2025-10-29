@@ -1,0 +1,4 @@
+Explorations.ipynb is used to understand the structure of the data provided. 
+FoodInsSegFormat.py is the script used to structure the data provided into the format that YOLO requires
+Folder validate is used to ensure that the processing pipeline is correct and has not caused any issues. We are redrawing 
+the bounding boxes using the cleaned, normalised coordinates.
