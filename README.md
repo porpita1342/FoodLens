@@ -1,114 +1,440 @@
-***Work in progress-Segmentation pipeline complete ** 
-This repo contains the code for the project FoodLens, an application where the user can take picture(s) of the food and receive the results of the nutritional content
+# FoodLens 🍽️
+
+> **Status:** 🚧 Work in Progress - Segmentation Pipeline Complete
+
+An intelligent food analysis application that uses computer vision and deep learning to identify food items and provide detailed nutritional content from photos.
+
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Current Challenges](#current-challenges)
+- [Technical Decisions](#technical-decisions)
+- [Datasets](#datasets)
+- [Model Training](#model-training)
+- [Development Timeline](#development-timeline)
+- [To-Do List](#to-do-list)
+- [Future Work](#future-work)
+- [Technical Stack](#technical-stack)
+- [Monetization](#monetization)
+- [References](#references)
+
+## Overview
+
+FoodLens allows users to capture photos of food and receive detailed nutritional analysis. The application leverages advanced segmentation models (YOLOv11-seg) and depth estimation to analyze food composition and provide accurate nutritional information.
+
+The project aims to solve the challenge of accurately identifying multiple food items in a single image, segmenting them, and estimating their volume to calculate nutritional content.
+
+## ✨ Features
+
+- ✅ **Instance segmentation** using YOLOv11-seg trained on FoodSeg103 dataset
+- ✅ **Multi-food detection** - identify and segment multiple food items simultaneously
+- ✅ **Real-time inference** - ~7.8ms per image on T4 GPU with TensorRT
+- ✅ **High accuracy** - trained on high-quality manually labeled dataset with 103 food classes
+- 🚧 **Volume estimation** - currently exploring non-AI approaches
+- 🚧 **RGBD image processing pipeline** - integration with iPhone depth cameras
+- 🚧 **Mobile application UI** - Must be swift to access the hardwares
+
+| yolo11l-seg | yolo11n-seg |
+|:---:|:---:|
+| <img src="YOLOl_trained/train_batch38220.jpg" width="600" height="400"/> | <img src="YOLOn_trained/train_batch0.jpg" width="600" height="400"/> |
+| <img src="YOLOl_trained/BoxF1_curve.png" width="600" height="400"/> | <img src="YOLOn_trained/BoxF1_curve.png" width="600" height="400"/> |
+| <img src="YOLOl_trained/MaskR_curve.png" width="600" height="400"/> | <img src="YOLOn_trained/MaskR_curve.png" width="600" height="400"/> |
+
+## 🏗️ Architecture
+
+The application uses a **client-server architecture** for optimal performance:
+
+- **Client (Mobile App)**: 
+  - Captures RGBD images using iPhone depth camera capabilities
+  - Sends HEIC files with embedded depth data to server
+  - Displays nutritional analysis results
+  
+- **Server (Remote GPU Infrastructure)**:
+  - Receives and processes RGBD images
+  - Performs instance segmentation using YOLOv11-seg
+  - Classifies food items
+  - Estimates volume and calculates nutritional content
+  - Returns structured JSON response with results
+
+**Why remote processing?** Mobile processors lack sufficient computational power for real-time segmentation, classification, and 3D reconstruction. Server-side processing ensures consistent performance and allows for more complex models.
+
+## 🚧 Current Challenges
+
+### Challenge 1: Volume Estimation [MAJOR]
+
+**Problem:** Need an accurate method for volume estimation that doesn't rely purely on AI/ML approaches.
+
+**Current Status:** Exploring geometric and depth-based estimation methods. Initially experimented with full 3D reconstruction but found it too resource-intensive.
+
+**Attempted Solutions:**
+- ❌ **Colmap** - Extremely slow, takes too much GPU time and resources
+- ❌ **Open3D** - Similar performance issues
+- 🔄 Currently researching depth-based volume estimation using single RGBD images
+
+### Challenge 2: Segmentation Performance [MAJOR - RESOLVED]
+
+**Problem:** Achieving fast, accurate food segmentation for real-time inference.
+
+**Solutions Attempted:**
+1. ❌ **Meta's Segment Anything Model (SAM)** 
+   - Issue: Inference time way too long for mobile application
+   - Not suitable for real-time use case
+
+2. ❌ **FoodSAM** (GitHub: jamesjg/FoodSAM)
+   - Issue: Unmaintained repository (last updated 2+ years ago)
+   - Could not get it running properly due to environment/dependency issues
+
+3. ❌ **YOLOv11n-seg + FoodInsSeg dataset**
+   - Issue: Poor results due to low-quality dataset labels (likely machine-labeled)
+   - Many food items not properly segmented
+
+4. ✅ **YOLOv11l-seg + FoodSeg103 dataset** [CURRENT SOLUTION]
+   - High-quality manually labeled dataset
+   - Excellent segmentation results
+   - Acceptable inference time (~7.8ms on T4 with TensorRT)
+   - Successfully trained and deployed
+
+### Challenge 3: Cross-Dataset Name Matching [MAJOR]
+
+**Problem:** Nutritional datasets from different sources use inconsistent naming conventions for the same food items.
+
+**Example Issues:**
+- Same food may have completely different names across datasets
+- Different formatting (e.g., "fried chicken" vs "chicken_fried" vs "FriedChicken")
+- Semantic differences not captured by string matching
+
+**Attempted Solutions:**
+- ❌ **FuzzyWuzzy library** - Only handles string literal similarities, misses semantic meaning
+- 🔄 Exploring NLP-based semantic matching approaches
+- 🔄 Considering creation of unified food ontology/mapping table
+
+## 🤔 Technical Decisions
+
+### Why Remote Processing?
+
+**Decision:** Perform all heavy computation on remote GPU servers rather than on-device.
+
+**Reasons:**
+- Segmentation models require significant computational resources
+- Real-time inference not feasible on mobile CPUs
+- Multi-class classification adds computational overhead
+- 3D reconstruction (if implemented) extremely resource-intensive
+- Apple's ML framework insufficient for these workloads
+
+**Tradeoffs:**
+- ✅ Consistent performance across devices
+- ✅ Can use larger, more accurate models
+- ✅ Easy to update/improve models without app updates
+- ❌ Requires internet connection
+- ❌ Server costs
+- ❌ Potential latency issues
+
+### Where and How to Extract Depth Data?
+
+**Decision:** Extract depth data server-side from HEIC files.
+
+**Reasons:**
+- Need color images for classification/segmentation anyway
+- HEIC format efficiently stores depth + color data
+- Reduces client-side processing complexity
+- Server has more resources for depth extraction
+
+**Implementation:** Send HEIC files directly to server. See [Apple's documentation on capturing photos with depth](https://developer.apple.com/documentation/avfoundation/capturing-photos-with-depth) for technical details.
+
+### Development Environment Setup
+
+**Problem:** Initially attempted dual-boot Ubuntu setup, but encountered persistent SSH issues.
+
+**Solution:** 
+- Switched to **Windows WSL (Windows Subsystem for Linux)**
+- Use **Docker containers** for each developmental stage
+- Separate containers for different model experiments
+- Git for version control with GitHub integration
+
+**Benefits:**
+- Clean isolation between experiments
+- Easy reproducibility
+- No more dual-boot complications
+- Integrated with VS Code for seamless development
+
+### Server Infrastructure
+
+**Initial Consideration:** Self-hosted containerized server on personal PC.
+
+**Actual Solution:** **Railway.app** for deployment
+
+**Why Railway:**
+- 30-day free trial for initial development
+- Extremely easy deployment - just connect GitHub repo
+- Automatic deployment on git push
+- Provides public URL for API access
+- Auto-rebuilds on repository updates
+- No complex server configuration needed
+
+**Note:** The VPS doesn't need powerful specs - it primarily serves as an API endpoint. Actual ML inference happens on rented GPU servers (Vast AI with 3090/3090Ti GPUs).
+
+## 📊 Datasets
+
+### Active Datasets
+
+1. **[Recipe1M+](http://pic2recipe.csail.mit.edu/)**
+   - Large-scale recipe and ingredient dataset
+   - Used for understanding ingredient relationships
+   - Access approved: 04/30/2024
+
+2. **[FoodSeg103](https://github.com/LARC-CMU-SMU/FoodSeg103-Benchmark-v1)** ⭐ [CURRENT]
+   - High-quality manual segmentation annotations
+   - 103 food categories
+   - Excellent label quality
+   - Used for YOLOv11l-seg training with great success
+
+3. **[Nutrition5K](https://github.com/google-research-datasets/Nutrition5k)**
+   - Direct nutritional value ground truth
+   - Enables end-to-end nutritional prediction
+   - Removes need for ingredient → nutrition database query step
+
+### Attempted Datasets
+
+4. **~~FoodInsSeg~~** (GitHub: jamesjg/FoodInsSeg)
+   - Instance segmentation dataset
+   - Initially promising
+   - **Issue:** Poor label quality (likely machine-labeled)
+   - Resulted in disappointing YOLOv11n-seg performance
+   - **Status:** Abandoned in favor of FoodSeg103
+
+## 🎯 Model Training
+
+### Current Production Model
+
+**Model:** YOLOv11l-seg (large variant with segmentation head)
+
+**Training Configuration:**
+- **Dataset:** FoodSeg103 (103 classes, manually labeled)
+- **Hardware:** 4x NVIDIA 3090Ti GPUs
+- **Epochs:** 500 with early stopping enabled
+- **Early Stopping Patience:** 100 epochs
+- **Training Date:** October 7-8, 2024
+
+**Performance:**
+- **Inference Speed:** ~7.8ms per image on NVIDIA T4 with TensorRT optimization
+- **Accuracy:** Significantly improved over previous attempts
+- **Results:** Production-ready, excellent segmentation quality
+
+### Previous Training Experiments
+
+**Experiment 1: YOLOv11n-seg + FoodInsSeg**
+- **Date:** September 23-24, 2024
+- **Hardware:** 4x NVIDIA 3090 GPUs
+- **Configuration:** 500 epochs, early stopping patience=100
+- **Results:** Disappointing - poor coverage, missed many food items
+- **Root Cause:** Dataset quality issues (poor labeling)
+- **Status:** Discontinued
+
+**Key Learnings:**
+- Nano model (11n) vs Large model (11l) performance difference less critical than dataset quality
+- Inference time increase from 11n to 11l (1.8ms → 7.8ms) acceptable for quality improvement
+- Manual vs machine labeling makes massive difference in final model performance
+
+## 📅 Development Timeline
+
+### Phase 1: Research & Initial Experimentation (April - June 2024)
+
+**April 30, 2024**
+- ✅ Gained access to Recipe1M+ dataset
+- Begin researching food image datasets and nutritional databases
+
+**May 5, 2024**
+- ✅ Built rudimentary testing website
+- Supports upload of RGB image + corresponding depth mask
+- Basic proof-of-concept for RGBD processing pipeline
+
+**May 18, 2024**
+- ❌ Experimented with InverCooking Model from Meta AI
+- Results disappointing - likely due to aggressive image resizing (all images to 224x224)
+- Decided to train multilabel classification model from scratch
+
+**May 18, 2024 (continued)**
+- 🚧 Encountered difficulties downloading datasets
+- Plan to rent US-based server for improved download speeds
+
+**June 1, 2024**
+- ❌ Tested FoodSAM (uses Facebook's Segment Anything as backbone)
+- Cannot execute properly - likely environment misconfiguration or unmaintained repo (last update 2+ years ago)
+- 📚 Researched iPhone RGBD image capture and extraction methods
+- 🧪 Conducted initial experiments with iPhone 12 + XCode
+
+**June 15, 2024**
+- 🎨 Completed early drafts of graphic designs for mobile UI
+- 🧪 Started experimenting with Colmap for 3D reconstruction
+
+**June 20, 2024**
+- ❌ Concluded Colmap is too inefficient for our use case
+- Takes excessive GPU resources and time to output 3D model
+- 🔄 Began exploring alternatives: Open3D, Trimesh
+
+### Phase 2: Pivot & Dataset Research (July - August 2024)
+
+**July 1, 2024**
+- 🔄 **Major Decision:** Gave up on 3D reconstruction for current version
+- Will limit to single-picture inference initially
+- Future consideration: Multi-angle videos for 3D reconstruction
+- 📚 Began researching segmentation models: SAM (Facebook), YOLO
+- 🔍 Searching for food segmentation datasets
+- **Challenge:** Food segmentation datasets difficult to find (niche topic)
+- **Note:** Recipe1M+ is NOT a segmentation dataset
+
+**September 14, 2024**
+- ✅ Built dummy server on Railway for mobile app development
+- Server receives requests, returns JSON with nutritional content
+- All processing performed server-side
+- Enables collaborator (Lucas) to begin app development in parallel
+
+**September 20, 2024**
+- 📚 Discovered FoodInsSeg dataset - looks promising
+- Instance segmentation dataset with multiple food classes
+- 🔄 Began researching YOLO11-seg architecture
+
+**September 21, 2024** (Discussion with collaborator)
+- 📝 Architectural decisions:
+  - Two-server approach: (1) Application server (frontend/backend), (2) Inference server (ML models)
+  - Will explore webhooks for communication between servers
+- 💰 Monetization: **NO** (as of right now)
+  - Many open-source tools used in development
+  - Licenses and acknowledgements still unclear
+  - Will not monetize until application fully complete and legal issues resolved
+- 🔄 Architecture evolution:
+  - Original plan: Extract ingredients → Query nutritional database
+  - New plan with Nutrition5K: Direct nutritional prediction (end-to-end)
+  - Still leaving room for potential upgrades/alternative approaches
+
+### Phase 3: Training & Iteration (September - October 2024)
+
+**September 23, 2024**
+- 🧹 Cleaned and reformatted FoodInsSeg dataset into YOLO format
+- 🚀 Uploaded to remote server (4x NVIDIA 3090)
+- ▶️ Training started: YOLOv11n-seg, 500 epochs, early stopping patience=100
+
+**September 24, 2024**
+- ❌ YOLOv11n-seg results very disappointing
+- Many food items not properly covered/detected
+- 🔍 Deep dive revealed: Dataset is the problem, not the model
+- FoodInsSeg appears to be poorly labeled (likely machine-labeled)
+- 🔄 Decision: Find new dataset, upgrade to YOLOv11l-seg
+- Inference time increase acceptable (1.8ms → 7.8ms on T4 with TensorRT)
+
+**October 7, 2024**
+- 📚 Discovered FoodSeg103 dataset
+- High-quality manual labeling
+- 103 food categories with excellent annotation quality
+- 🔄 Switched to YOLOv11l-seg (large model)
+- 🚀 Training started: 500 epochs, early stopping patience=100, 4x 3090Ti
+
+**October 8, 2024** ⭐
+- ✅ **SUCCESS!** Training results exceed expectations
+- Excellent segmentation performance
+- Combination of larger model + significantly better dataset quality
+- **Status:** Production-ready model achieved
+
+## ✅ To-Do List
+
+### High Priority
+
+- [ ] **Volume Estimation Implementation**
+  - Research non-AI geometric approaches
+  - Leverage depth data from RGBD images
+  - Validate against known volumes
+
+- [ ] **Comprehensive RGBD Pipeline**
+  - Build robust image capture flow in mobile app
+  - Implement RGBD data extraction and upload
+  - Handle camera intrinsics properly
+  - Error handling for depth capture failures
+
+- [ ] **Production Mobile Application**
+  - Complete UI/UX implementation
+  - Integrate with inference server API
+  - Handle network errors gracefully
+  - Implement caching for offline viewing of past results
+
+### Medium Priority
+
+- [ ] **Ingredient Proportion Estimation**
+  - Determine how to estimate ingredient ratios in mixed dishes
+  - Research existing approaches (if any)
+  - May require additional training data
+
+- [ ] **Cross-Dataset Name Matching Solution**
+  - Explore NLP/semantic similarity approaches
+  - Consider building unified food ontology
+  - Create mapping tables between major nutritional databases
+
+- [ ] **API Documentation**
+  - Document all server endpoints
+  - Provide example requests/responses
+  - Create integration guide for frontend
+
+### Low Priority / Future Enhancements
+
+- [ ] **Multi-Angle Video Support**
+  - Allow users to capture multiple angles
+  - Implement 3D reconstruction (if performance improves)
+  - More accurate volume estimation
+
+- [ ] **User Account System**
+  - Save user history
+  - Track nutritional intake over time
+  - Personalized recommendations
+
+- [ ] **Expanded Dataset**
+  - Fine-tune on regional/cultural foods
+  - Improve coverage of uncommon food items
+
+## 🚀 Future Work
+
+- **Multi-Angle Video Support:** Allow users to capture food from multiple angles for improved 3D reconstruction and more accurate volume estimation
+- **Ingredient Proportion Estimation:** Develop methods to estimate ratios of different ingredients in mixed dishes (e.g., percentage of rice vs vegetables in a bowl)
+- **Enhanced RGBD Pipeline:** Build comprehensive concurrent system for extraction, upload, and bidirectional communication
+- **Production Mobile App:** Complete React Native application with polished UI/UX
+- **Database Integration:** Full integration with nutritional databases for ingredient-based queries
+- **Portion Size Recommendations:** Provide suggestions based on dietary goals
+- **Multi-Language Support:** Expand to support food names in different languages
+- **Allergen Detection:** Warn users of potential allergens based on identified foods
 
 
 
-TO DO LIST: 
-    -Figure out a way for volume estimation. The approach should not be AI
-    -Build a more comprehensive pipeline that will extract and upload RGBD images and camera intrinsics to a remote server, and receive other messages. But this will happen concurrently with app development.
-    -Build a valid UI for the application
-Problems and Challenges
-[MAJOR CHALLENGE] I experimented with both Colmap and Open3D but both of them take way too long to reconstruct a 3D surface. 
+## 📚 References
 
-[MAJOR CHALLENGE] Segmentation takes way too long
-I have experimented with the Segment-anything model from Meta and the FoodSAM model: 
-https://github.com/jamesjg/FoodSAM
+### Research Papers & Models
+- [FoodSAM Paper](https://arxiv.org/abs/2308.05938) - Any Food Segmentation
+- [FoodSAM Repository](https://github.com/jamesjg/FoodSAM)
+- [Ultralytics YOLOv11](https://docs.ultralytics.com/)
 
-The Segment-Anything Model from Meta takes way too long to infer and the FoodSAM model just straight up does not work (it hasn’t been maintained for at least two years).
-Right now i am exploring options with MobileSAM with YOLOv8 as the backbone.
+### Documentation
+- [Apple Depth Capture Guide](https://developer.apple.com/documentation/avfoundation/capturing-photos-with-depth)
+- [PyTorch Documentation](https://pytorch.org/docs/)
+- [Docker Documentation](https://docs.docker.com/)
 
+### Datasets
+- [FoodSeg103 Benchmark](https://github.com/LARC-CMU-SMU/FoodSeg103-Benchmark-v1)
+- [Nutrition5K Dataset](https://github.com/google-research-datasets/Nutrition5k)
+- [Recipe1M+ Dataset](http://pic2recipe.csail.mit.edu/)
 
-[MAJOR CHALLENGE] Name matching: 
-I will be utilizing datasets from various sources. The name and formatting for the same foods might be completely different across datasets. I have explored possibilities with libraries such as fuzzywuzzy but have given up. Those libraries only look for similarities in the string literals rather than the semantic meanings of the words. Sometimes a food item might have a completely different name across datasets and fuzzywuzzy is not going to fix anything beyond string formatting issues.
+### Tools & Services
+- [Railway.app](https://railway.app/) - Deployment platform
+- [Vast AI](https://vast.ai/) - GPU rental service
 
+---
 
-Should we do the processing locally? 
-No. Although Apple has its own framework for ML deployment, segmentation, classification and 3D reconstruction are computation heavy and the processors on the phones are simply not enough. Thus the application will run on a remote server with GPU resources.
+**Project Started:** April 2024  
+**Last Updated:** October 2024  
+**Status:** Active Development - Segmentation Complete, Volume Estimation & App Development In Progress
 
-Where and how to extract the depth mask? 
-We will not extract the depth mask locally on the devices since we also need the coloured images for classification and segmentation. We will send the HEIC files to the server directly. 
-As for how to extract the depth data, refer to this valuable article from apple:
-https://developer.apple.com/documentation/avfoundation/capturing-photos-with-depth
+---
 
-Segmentation limitations
-There was already a public model for Food Segmentation called the FoodSAM. Unfortunately, it is not maintained anymore and the program simply does not work.
-I have decided to train a segmentation model myself.
+## 📝 Notes
 
-How to figure out the proportions of ingredients?
-I am still uncertain about this part. Right now we have promising methods for estimating the volume of the entire dish and working out its ingredients. 
+This project represents an ongoing exploration of computer vision applied to nutritional analysis. While significant progress has been made in segmentation, several challenges remain, particularly around volume estimation and cross-dataset integration. The project prioritizes accuracy and user experience over rapid deployment.
 
-
-How to set up the environment for development? 
-Right now it's a complete mess. The ubuntu from the dual boot keeps failing me on the SSH and I plan to uninstall the ubuntu system completely and just stick with Windows WSL. I will use docker images for each of my developmental stages of the DL models. (Remedied now)
-
-
-Tracking Progress:
-
-04/30
-	-Request to access the Recipe 1M+ Dataset has been approved.
-05/05 
-	-Rudimentary testing website is built that allows upload of RGB image and its corresponding depth mask. 
-
-18/05
-	-Experimentation done with the Invercooking Model released by MetaAI. Results have been disappointing. Probably due to the aggressive resizing of image resolutions done during model training (all to 224x224). 
-	-Decided to train a multilabel classification model from scratch
-	-Difficulties with downloading datasets. Plan to rent a US based server for this issue. 
-
-01/06
-    -Experimented with FoodSAM which used facebook's Segment Anything as the backbone. It cannot execute properly likely due to misconfigured environment on my end. Or it is just that their repo is not maintained. (last updated two years ago)
-    -Researched on how to take and extract RGBD images with iPhone cameras. 
-    -Experimented with my iPhone 12 on XCode. 
-
-15/06 
-    -Early drafts of Graphic Designs has been made. 
-    -Started experimenting with Colmap, a 3D processing library. 
-
-
-20/06
-    -Came to the conclusion that Colmap is way to inefficient of a method. Takes too much GPU resources and most critically, time, to output a 3D model. Will look into other 3D libraries such as Open3D or Trimesh.
-
-01/07
-    -Decided to give up on 3D reconstruction for now and currently limit ourselves to a single picture inference. In the future we might experiment with multi-angle videos.
-    -Begin researching for valid segmentation models. Currently looking at SAM from facebook and YOLO.
-    -Begin searching for datasets. Recipe1M+ is not a segmentation dataset. Food segmentation datasets are generally difficult to find due to it being a not-too-popular topic.
-
-09/21 (discussion with collaborator)
-I will look into the concept of web hooks. 
-Two servers are used for the entire pipeline: One for application (Front ends, backends) and one for inference. 
-
-Monetization: NO (as of right now). There are many open source tools that are used during the development of the application and the licenses and acknowledgements of the libraries being used are still not clear. 
-We will not look into this until the development of the application itself is not fully complete.
-
-Initially we were planning on building one model for extracting the ingredients of a food then querying a database on those ingredient keys. Now, with the Nutrition5K dataset, we are outputting the nutritional value of the foods right away without the dataset querying step. But we should still leave spaces for potential upgrades in the future. 
-
-Server
-
-I was originally looking into the possibilities of hosting a server on my own PC that was containerized and separate from other parts of my OS. Which turned out to be too difficult. Therefore I will be using online VPS services. The VPS does not need to be powerful at all; it doesn’t really even need a GPU. All it does right now is return a json file for Lucas to work with. 
-
-I have chosen Railway because it offers a 30 days free trial and is very easy to deploy code on. All you need to do is connect it with a github repository and it will give you a website link for other people to access. 
-
-It also tracks the updates to the github repository. For example, if you commit something to the repo, it will rebuild the application which I think it pretty convenient.
-
-14/09
-    -Built a dummy server for app development by my collaborator. It will receive a request from the user side and then output a string which will contain the nutritional content and other information. All processing tasks will be performed on the server side. 
-
-20/09
-    -Found the dataset [FoodInsSeg](https://github.com/jamesjg/FoodInsSeg) which looks really promising. It is an instance segmentation dataset.    
-    -Looking into yolo11-seg
-
-23/09
-    -Cleaned the dataset and reformatted it into the form that YOLO requires. 
-    -Put it on a remote server to train for 500 EPOCHS on 4x3090. Early stopping is enabled but the patience it set to 100, a very generous number
-
-
-24/09 
-    -The results from yolo11n-seg is really disappointing. Many food has not been covered. Upon a deeper dive the problem actually lies within the dataset. The dataset is poorly labelled (probably machine labelled)
-    -Will search for a new dataset. And experiment with yolo11l-seg as the increase in inference time is not that significant (1.8ms versus 7.8ms on T4 with tensorRT)
-
-07/10
-    -Found FoodSeg103. Appears to be manually labelled and of very high quality. 
-    -yolo11l-seg will be used. 
-    -Put on server to train for 500 EPOCH on 4x 3090Ti. Early stopping is also set with patience = 100
-
-08/10
-    -Results from the last experiment is very successful. Probably a combination of larger model and a significantly better dataset. 
+If you have suggestions, find bugs, or want to contribute, feel free to open an issue or submit a pull request!
