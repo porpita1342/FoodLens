@@ -2,7 +2,7 @@
 train/VerOne/VastServerUpload/ultralytics/
 train/VerThree/VastServerUpload/ultralytics/
 train/ultralytics/
-
+docker.sh
 # Python
 __pycache__/
 *.py[cod]
