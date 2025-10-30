@@ -182,7 +182,7 @@ The application uses a **client-server architecture** for optimal performance:
 1. **[Recipe1M+](http://pic2recipe.csail.mit.edu/)**
    - Large-scale recipe and ingredient dataset
    - Used for understanding ingredient relationships
-   - Access approved: 04/30/2024
+   - Access approved: 04/30/2025
 
 2. **[FoodSeg103](https://github.com/LARC-CMU-SMU/FoodSeg103-Benchmark-v1)** ⭐ [CURRENT]
    - High-quality manual segmentation annotations
@@ -215,7 +215,7 @@ The application uses a **client-server architecture** for optimal performance:
 - **Hardware:** 4x NVIDIA 3090Ti GPUs
 - **Epochs:** 500 with early stopping enabled
 - **Early Stopping Patience:** 100 epochs
-- **Training Date:** October 7-8, 2024
+- **Training Date:** October 7-8, 2025
 
 **Performance:**
 - **Inference Speed:** ~7.8ms per image on NVIDIA T4 with TensorRT optimization
@@ -225,7 +225,7 @@ The application uses a **client-server architecture** for optimal performance:
 ### Previous Training Experiments
 
 **Experiment 1: YOLOv11n-seg + FoodInsSeg**
-- **Date:** September 23-24, 2024
+- **Date:** September 23-24, 2025
 - **Hardware:** 4x NVIDIA 3090 GPUs
 - **Configuration:** 500 epochs, early stopping patience=100
 - **Results:** Disappointing - poor coverage, missed many food items
@@ -239,44 +239,44 @@ The application uses a **client-server architecture** for optimal performance:
 
 ## 📅 Development Timeline
 
-### Phase 1: Research & Initial Experimentation (April - June 2024)
+### Phase 1: Research & Initial Experimentation (April - June 2025)
 
-**April 30, 2024**
+**April 30, 2025**
 - ✅ Gained access to Recipe1M+ dataset
 - Begin researching food image datasets and nutritional databases
 
-**May 5, 2024**
+**May 5, 2025**
 - ✅ Built rudimentary testing website
 - Supports upload of RGB image + corresponding depth mask
 - Basic proof-of-concept for RGBD processing pipeline
 
-**May 18, 2024**
+**May 18, 2025**
 - ❌ Experimented with InverCooking Model from Meta AI
 - Results disappointing - likely due to aggressive image resizing (all images to 224x224)
 - Decided to train multilabel classification model from scratch
 
-**May 18, 2024 (continued)**
+**May 18, 2025 (continued)**
 - 🚧 Encountered difficulties downloading datasets
 - Plan to rent US-based server for improved download speeds
 
-**June 1, 2024**
+**June 1, 2025**
 - ❌ Tested FoodSAM (uses Facebook's Segment Anything as backbone)
 - Cannot execute properly - likely environment misconfiguration or unmaintained repo (last update 2+ years ago)
 - 📚 Researched iPhone RGBD image capture and extraction methods
 - 🧪 Conducted initial experiments with iPhone 12 + XCode
 
-**June 15, 2024**
+**June 15, 2025**
 - 🎨 Completed early drafts of graphic designs for mobile UI
 - 🧪 Started experimenting with Colmap for 3D reconstruction
 
-**June 20, 2024**
+**June 20, 2025**
 - ❌ Concluded Colmap is too inefficient for our use case
 - Takes excessive GPU resources and time to output 3D model
 - 🔄 Began exploring alternatives: Open3D, Trimesh
 
-### Phase 2: Pivot & Dataset Research (July - August 2024)
+### Phase 2: Pivot & Dataset Research (July - August 2025)
 
-**July 1, 2024**
+**July 1, 2025**
 - 🔄 **Major Decision:** Gave up on 3D reconstruction for current version
 - Will limit to single-picture inference initially
 - Future consideration: Multi-angle videos for 3D reconstruction
@@ -285,18 +285,18 @@ The application uses a **client-server architecture** for optimal performance:
 - **Challenge:** Food segmentation datasets difficult to find (niche topic)
 - **Note:** Recipe1M+ is NOT a segmentation dataset
 
-**September 14, 2024**
+**September 14, 2025**
 - ✅ Built dummy server on Railway for mobile app development
 - Server receives requests, returns JSON with nutritional content
 - All processing performed server-side
 - Enables collaborator (Lucas) to begin app development in parallel
 
-**September 20, 2024**
+**September 20, 2025**
 - 📚 Discovered FoodInsSeg dataset - looks promising
 - Instance segmentation dataset with multiple food classes
 - 🔄 Began researching YOLO11-seg architecture
 
-**September 21, 2024** (Discussion with collaborator)
+**September 21, 2025** (Discussion with collaborator)
 - 📝 Architectural decisions:
   - Two-server approach: (1) Application server (frontend/backend), (2) Inference server (ML models)
   - Will explore webhooks for communication between servers
@@ -309,14 +309,14 @@ The application uses a **client-server architecture** for optimal performance:
   - New plan with Nutrition5K: Direct nutritional prediction (end-to-end)
   - Still leaving room for potential upgrades/alternative approaches
 
-### Phase 3: Training & Iteration (September - October 2024)
+### Phase 3: Training & Iteration (September - October 2025)
 
-**September 23, 2024**
+**September 23, 2025**
 - 🧹 Cleaned and reformatted FoodInsSeg dataset into YOLO format
 - 🚀 Uploaded to remote server (4x NVIDIA 3090)
 - ▶️ Training started: YOLOv11n-seg, 500 epochs, early stopping patience=100
 
-**September 24, 2024**
+**September 24, 2025**
 - ❌ YOLOv11n-seg results very disappointing
 - Many food items not properly covered/detected
 - 🔍 Deep dive revealed: Dataset is the problem, not the model
@@ -324,14 +324,14 @@ The application uses a **client-server architecture** for optimal performance:
 - 🔄 Decision: Find new dataset, upgrade to YOLOv11l-seg
 - Inference time increase acceptable (1.8ms → 7.8ms on T4 with TensorRT)
 
-**October 7, 2024**
+**October 7, 2025**
 - 📚 Discovered FoodSeg103 dataset
 - High-quality manual labeling
 - 103 food categories with excellent annotation quality
 - 🔄 Switched to YOLOv11l-seg (large model)
 - 🚀 Training started: 500 epochs, early stopping patience=100, 4x 3090Ti
 
-**October 8, 2024** ⭐
+**October 8, 2025** ⭐
 - ✅ **SUCCESS!** Training results exceed expectations
 - Excellent segmentation performance
 - Combination of larger model + significantly better dataset quality
@@ -447,8 +447,8 @@ The application uses a **client-server architecture** for optimal performance:
 
 ---
 
-**Project Started:** April 2024  
-**Last Updated:** October 2024  
+**Project Started:** April 2025  
+**Last Updated:** October 2025  
 **Status:** Active Development - Segmentation Complete, Volume Estimation & App Development In Progress
 
 ---
