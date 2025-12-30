@@ -72,7 +72,9 @@ The application uses a **client-server architecture** for optimal performance:
 - ❌ **Colmap** - Extremely slow, takes too much GPU time and resources
 - ❌ **Open3D** - Similar performance issues
 - 🔄 Currently researching depth-based volume estimation using single RGBD images
-
+- POSSIBLE CANDIDATE: NeuS2 offers a huge increase in speed (taking seconds to generate rather than hours). 
+Though taking 30~40 seconds is still a bit long for real-time calorie estimation, but it is already a massive improvement.
+https://vcai.mpi-inf.mpg.de/projects/NeuS2/
 ### Challenge 2: Segmentation Performance [MAJOR - RESOLVED]
 
 **Problem:** Achieving fast, accurate food segmentation for real-time inference.
